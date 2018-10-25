@@ -7,13 +7,15 @@ N = 1000 # Antal linjer
 
 search = ["fk5;", "EnD"]
 archiveColumns = ["SCW", "coordinate1", "coordinate2", "Name",
-                "ObsTime", "time chans start", "time chans stop", "Significance"]
+                  "ObsTime", "time chans start", "time chans stop",
+                  "Significance", "IJDStart", "IJDStop"]
 
 # filename = "ArchiveFiles/gbJ1_A_4_E03.txt"
 directory = "E03/"
 
+
 def archiveExtract(directory):
-    for filename in os.listdir("ArchiveCSV/"+directory):
+    for filename in os.listdir("ArchiveFiles/"+directory):
         if filename.endswith(".txt"):
             with open(os.path.join("ArchiveFiles/"+directory, filename), 'r') as fin: #Åbner filen og indlæser linjerne
                 lines = fin.readlines()
@@ -40,9 +42,9 @@ def archiveExtract(directory):
                         archivedf.iloc[n, 5] = info[8] # time chans start
                         archivedf.iloc[n, 6] = info[9] # time chans stop
                         archivedf.iloc[n, 7] = info[7] # Significance
+                        archivedf.iloc[n, 8] = info[1] # IJDStart
+                        archivedf.iloc[n, 9] = info[2] # IJDStop
                         n += 1
-
-                        j = i
 
                         for j in range(i, len(lines)):
                             if search[1] in lines[j]:
@@ -55,7 +57,7 @@ def archiveExtract(directory):
             ''' Sorter data (fjerner nul rækker) '''
             archivedf = archivedf[(archivedf.T != 0).any()]
 
-            archivedf.to_csv("ArchiveCSV/"+filename+".csv", sep=',', encoding="utf-8" , index=False)
-
+            archivedf.to_csv("ArchiveCSV/"+directory+filename+".csv", sep=',', encoding="utf-8" , index=False)
+            print("done")
 
 archiveExtract(directory)
