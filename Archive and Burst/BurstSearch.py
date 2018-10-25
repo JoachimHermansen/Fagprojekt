@@ -15,11 +15,11 @@ def burstSearch(directory):
 
             for i in range(len(archivedf.iloc[:, 0])-1):
                 if ( ((archivedf.iloc[i, 0] == archivedf.iloc[i+1, 0])
-                        or abs((int(archivedf.iloc[i, 0])%10e6 -int(archivedf.iloc[i+1, 0])%10e6) == 1))
-                        and (abs((float(archivedf.iloc[i, 1])-float(archivedf.iloc[i+1, 1]))) <= 0.003)
-                        and (abs((float(archivedf.iloc[i, 2])-float(archivedf.iloc[i+1, 2]))) <= 0.003)
-                        and (float(archivedf.iloc[i+1, 6]) < float(archivedf.iloc[i, 5])
-                        or float(archivedf.iloc[i+1, 5]) > float(archivedf.iloc[i, 6])) ):
+                        or abs((archivedf.iloc[i, 0]%10e6 -archivedf.iloc[i+1, 0]%10e6) == 1))
+                        and (abs((archivedf.iloc[i, 1]-archivedf.iloc[i+1, 1])) <= 0.003)
+                        and (abs((archivedf.iloc[i, 2]-archivedf.iloc[i+1, 2])) <= 0.003)
+                        and (archivedf.iloc[i+1, 6] < archivedf.iloc[i, 5]
+                        or archivedf.iloc[i+1, 5] > archivedf.iloc[i, 6]) ):
                             burstdf.iloc[i, :] = archivedf.iloc[i, :]
                             burstdf.iloc[i+1, :] = archivedf.iloc[i+1, :]
                 else:
@@ -29,7 +29,8 @@ def burstSearch(directory):
             burstdf = burstdf[(burstdf.T != 0).any()]
 
             burstdf.to_csv("BurstCSV/"+directory+filename, sep=',', encoding='utf-8', index=False)
-            print("done")
+            print("Why are you running?")
+    print("Done")
 
 
 burstSearch(directory)

@@ -34,22 +34,22 @@ def archiveExtract(directory):
                         info = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[i + 1])
 
                         # Tildeler koordinaterne til deres plads i DF
-                        archivedf.iloc[n, 1] = coordinates[1]
-                        archivedf.iloc[n, 2] = coordinates[2]
+                        archivedf.iloc[n, 1] = float(coordinates[1])
+                        archivedf.iloc[n, 2] = float(coordinates[2])
 
                         # Tildeler yderligere info til deres plads i DF
-                        archivedf.iloc[n, 4] = info[3] # obstime
-                        archivedf.iloc[n, 5] = info[8] # time chans start
-                        archivedf.iloc[n, 6] = info[9] # time chans stop
-                        archivedf.iloc[n, 7] = info[7] # Significance
-                        archivedf.iloc[n, 8] = info[1] # IJDStart
-                        archivedf.iloc[n, 9] = info[2] # IJDStop
+                        archivedf.iloc[n, 4] = float(info[3]) # obstime
+                        archivedf.iloc[n, 5] = float(info[8]) # time chans start
+                        archivedf.iloc[n, 6] = float(info[9]) # time chans stop
+                        archivedf.iloc[n, 7] = float(info[7]) # Significance
+                        archivedf.iloc[n, 8] = float(info[1]) # IJDStart
+                        archivedf.iloc[n, 9] = float(info[2]) # IJDStop
                         n += 1
 
                         for j in range(i, len(lines)):
                             if search[1] in lines[j]:
                                 scw = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
-                                archivedf.iloc[m, 0] = scw[0]
+                                archivedf.iloc[m, 0] = int(scw[0])
                                 m += 1
                                 break
                         x += 1
@@ -58,6 +58,7 @@ def archiveExtract(directory):
             archivedf = archivedf[(archivedf.T != 0).any()]
 
             archivedf.to_csv("ArchiveCSV/"+directory+filename+".csv", sep=',', encoding="utf-8" , index=False)
-            print("done")
+            print("Keep going")
+    print("Done!")
 
 archiveExtract(directory)
