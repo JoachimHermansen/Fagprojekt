@@ -5,10 +5,10 @@ import os
 
 N = 1000 # Antal linjer
 
-search = ["fk5;", "EnD"]
+search = ["fk5;", "EnD", "Channel Width"]
 archiveColumns = ["SCW", "coordinate1", "coordinate2", "Name",
                   "ObsTime", "time chans start", "time chans stop",
-                  "Significance", "IJDStart", "IJDStop"]
+                  "Significance", "IJDStart[D]", "IJDStop[D]", "ChannelWidth[s]"]
 
 # filename = "ArchiveFiles/gbJ1_A_4_E03.txt"
 directory = "E03/"
@@ -46,12 +46,19 @@ def archiveExtract(directory):
                         archivedf.iloc[n, 9] = float(info[2]) # IJDStop
                         n += 1
 
-                        for j in range(i, len(lines)):
+                        for j in range(i, len(lines)): # Finder SCW
                             if search[1] in lines[j]:
                                 scw = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
                                 archivedf.iloc[m, 0] = int(scw[0])
-                                m += 1
                                 break
+
+                        for j in range(i,len(lines)): # Finder Channel Width
+                            if search[2] in lines[j]:
+                                chanwid = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
+                                archivedf.iloc[m, 10] = float(chanwid[2])
+                                break
+
+                        m += 1
                         x += 1
 
             ''' Sorter data (fjerner nul rækker) '''
