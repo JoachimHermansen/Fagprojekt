@@ -3,26 +3,26 @@ import pandas as pd
 import re
 import os
 
-N = 1000 # Antal linjer
+N = 1000  # amount of lines
 
 search = ["fk5;", "EnD", "Channel Width"]
 archiveColumns = ["SCW", "coordinate1", "coordinate2", "Name",
-                  "ObsTime", "time chans start", "time chans stop",
-                  "Significance", "IJDStart[D]", "IJDStop[D]", "ChannelWidth[s]"]
+                  "ObsTime[s]", "time chans start", "time chans stop",
+                  "Significance", "IJDStart[D]", "IJDStop[D]", "ChannelWidth[s]",
+                  "BurstStart[s]"]  # units in [], s = seconds, D = days
 
-# filename = "ArchiveFiles/gbJ1_A_4_E03.txt"
-directory = "E03/"
+directory = "E03/" # Chosen Directory (E03 or E04)
 
 
 def archiveExtract(directory):
     for filename in os.listdir("ArchiveFiles/"+directory):
         if filename.endswith(".txt"):
-            with open(os.path.join("ArchiveFiles/"+directory, filename), 'r') as fin: #Åbner filen og indlæser linjerne
+            with open(os.path.join("ArchiveFiles/"+directory, filename), 'r') as fin: # Open file and read the lines
                 lines = fin.readlines()
 
             archivedf = pd.DataFrame(np.zeros((N, len(archiveColumns))), columns=archiveColumns)
 
-            ''' Gennemgår linjerne for data '''
+            ''' Goes through the lines of the text file data '''
             m = 0
             n = 0
             x = 0
@@ -46,26 +46,39 @@ def archiveExtract(directory):
                         archivedf.iloc[n, 9] = float(info[2]) # IJDStop
                         n += 1
 
-                        for j in range(i, len(lines)): # Finder SCW
+                        for j in range(i, len(lines)): # Finds SCW
                             if search[1] in lines[j]:
                                 scw = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
                                 archivedf.iloc[m, 0] = int(scw[0])
                                 break
 
-                        for j in range(i,len(lines)): # Finder Channel Width
+                        for j in range(i, len(lines)): # Finds Channel Width
                             if search[2] in lines[j]:
                                 chanwid = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
                                 archivedf.iloc[m, 10] = float(chanwid[2])
+                                archivedf.iloc[m, 11] = float(chanwid[2])*archivedf.iloc[m, 5]
                                 break
+
+                        for j in range(i, len(lines)): # Finds Name of Source
+                            if "text={}" in lines[j]:
+                                break
+                            elif "text=" in lines[j]:
+                                s = lines[j]
+                                archivedf.iloc[m, 3] = s[s.find("{")+1:s.find("}")]
+                                break
+                            else:
+                                pass
 
                         m += 1
                         x += 1
 
-            ''' Sorter data (fjerner nul rækker) '''
+            ''' Sorts data (Removes zero rows) '''
             archivedf = archivedf[(archivedf.T != 0).any()]
 
             archivedf.to_csv("ArchiveCSV/"+directory+filename+".csv", sep=',', encoding="utf-8" , index=False)
             print("Keep going")
     print("Done!")
 
+
 archiveExtract(directory)
+
