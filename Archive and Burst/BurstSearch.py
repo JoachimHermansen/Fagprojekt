@@ -34,7 +34,7 @@ def burstSearch(directory):
             burstdf = burstdf.sort_values(by=['SCW', 'time chans start'])
 
             burstdf.to_csv("BurstCSV/"+directory+filename, sep=',', encoding='utf-8', index=False)
-            print("Why are you running?")
+            print("Thinking")
     print("Done!")
 
 
