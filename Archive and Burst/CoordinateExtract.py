@@ -1,8 +1,12 @@
 import pandas as pd
 
-directory = "E04/"
+cd = "ArchiveCSV/"
 
-file = "CombinedE04Combined.csv"
+directory = "E03/"
+
+file = "CombinedE03Combined.csv"
+
+
 
 name = ["EXO 0748-676","GS 0836-429","4U 1323-62","4U 1608-522",
         "4U 1636-536","MXB 1658-298","4U 1705-44","XTE J1710-281",
@@ -20,7 +24,7 @@ def CoorExtract(file,x,y):
     
     for i in range(n):
         
-        df=pd.read_csv("BurstCSV/"+directory+file)    
+        df=pd.read_csv(cd+directory+file)    
     
         df=df.loc[df['coordinate1']<=x[i]+0.003]
         df=df.loc[df['coordinate1']>=x[i]-0.003]
@@ -31,7 +35,7 @@ def CoorExtract(file,x,y):
         if df.empty:
             print("No data")
         else:
-            df.to_csv("BurstCSV/"+directory+"BurstFound"+name[i]+".csv", sep=',', encoding="utf-8" , index=False)
+            df.to_csv(cd+directory+"BurstFoundArchive"+name[i]+".csv", sep=',', encoding="utf-8" , index=False)
     
     return df
 
