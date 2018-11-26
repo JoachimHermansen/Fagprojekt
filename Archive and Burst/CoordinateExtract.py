@@ -18,26 +18,21 @@ n = 14
 
 def CoorExtract(file,x,y):
     
-    df=pd.read_csv("BurstCSV/"+directory+file)    
+    for i in range(n):
+        
+        df=pd.read_csv("BurstCSV/"+directory+file)    
     
-    df=df.loc[df['coordinate1']<x[n]+0.003]
-    df=df.loc[df['coordinate1']>x[n]-0.003]
+        df=df.loc[df['coordinate1']<=x[i]+0.003]
+        df=df.loc[df['coordinate1']>=x[i]-0.003]
 
-    df=df.loc[df['coordinate2']<y[n]+0.003]
-    df=df.loc[df['coordinate2']>y[n]-0.003]
+        df=df.loc[df['coordinate2']<=y[i]+0.003]
+        df=df.loc[df['coordinate2']>=y[i]-0.003]
   
-    if df.empty:
-        print('DataFrame is empty!')
-    else:
-        df.to_csv("BurstCSV/"+directory+"BurstFound"+name[n]+".csv", sep=',', encoding="utf-8" , index=False)
+        if df.empty:
+            print("No data")
+        else:
+            df.to_csv("BurstCSV/"+directory+"BurstFound"+name[i]+".csv", sep=',', encoding="utf-8" , index=False)
     
     return df
 
 print(CoorExtract(file,x,y))
-                
-
-            
-            
-            
-            
-            
