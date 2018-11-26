@@ -4,14 +4,13 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-def lightcurve(scw, chwidth, filename):
+
+def lightcurve(scw, chwidth, xCoor, yCoor, filename):
     interval = np.array([])  # Array of the interval of a SCW
     imgpoly = np.array([])  # Array of IMAGE;polygon line numbers
     chmax = np.array([])  # Array of chmax values
-    xTotal = np.array([])
-    yTotal = np.array([])
-    ranges = np.array([])
-    nvalue = np.array([])
+    xTotal = []
+    yTotal = []
     x = 0  # integer counting the number of IMAGE;polygon instances
 
     # Open file and read the lines
@@ -36,8 +35,8 @@ def lightcurve(scw, chwidth, filename):
 
     ''' Loops through the SCW and find all chmax values and append them'''
     for i in range(int(interval[0]), int(interval[1])):
-        if "chmax:" in lines[i]:
-            s = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[i])
+        if str(xCoor) in lines[i] and str(yCoor) in lines[i]:
+            s = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[i+1])
             chmax = np.append(chmax, int(s[10]))
 
     ''' Looking through each chmax value in the chmax-array '''
@@ -64,7 +63,6 @@ def lightcurve(scw, chwidth, filename):
             pass
         else:
             n = np.argmax(weighted)  # Position of highest value of weighted (The best imgpoly fit)
-            nvalue = np.append(nvalue, n)
             poly = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*?\d*(?:[eE][-+]?\d+)?", lines[int(imgpoly[n])])
 
             xPlot = np.asarray(poly[::2]).astype(int)  # All even positions as integers
@@ -80,12 +78,7 @@ def lightcurve(scw, chwidth, filename):
                 xTotal = np.vstack((xTotal, xPlot))
                 yTotal = np.vstack((yTotal, yPlot))
 
-            #print(np.amax(yPlot), np.amin(yPlot))
-            #print("Range: ", np.amax(yPlot)-abs(np.amin(yPlot)))
-
-            ranges = np.append(ranges, np.amax(yPlot)-abs(np.amin(yPlot)))
-
-    return xTotal, yTotal, ranges, chmax, nvalue
+    return xTotal, yTotal, chmax
 
 
 
