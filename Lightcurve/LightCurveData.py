@@ -4,27 +4,24 @@ import matplotlib.pyplot as plt
 import os
 import re
 
-directory = "E03/"
-filename = "gbJ1_B_4_E03.txt"
-
-chwidth = 4.0
-scw = "030900660010"  # Remember to include the first zero
-
-
-def lightcurve(scw, chwidth, filename, directory):
+def lightcurve(scw, chwidth, filename):
     interval = np.array([])  # Array of the interval of a SCW
     imgpoly = np.array([])  # Array of IMAGE;polygon line numbers
     chmax = np.array([])  # Array of chmax values
+    xTotal = np.array([])
+    yTotal = np.array([])
+    ranges = np.array([])
+    nvalue = np.array([])
     x = 0  # integer counting the number of IMAGE;polygon instances
 
     # Open file and read the lines
-    with open(os.path.join("ArchiveFiles/" + directory, filename), 'r') as fin:
+    with open(os.path.join("ArchiveFiles/", filename), 'r') as fin:
         lines = fin.readlines()
 
     for i in range(len(lines)):  # Finds interval of the entire SCW
-        if "BegiN " + scw in lines[i]:
+        if "BegiN " in lines[i] and str(scw) in lines[i]:
             interval = np.append(interval, int(i))
-        elif "EnD " + scw in lines[i]:
+        elif "EnD " in lines[i] and str(scw) in lines[i]:
             interval = np.append(interval, int(i))
             break
 
@@ -34,7 +31,7 @@ def lightcurve(scw, chwidth, filename, directory):
         if ("IMAGE;polygon" in lines[i]) and x >= 1:  # Only append from the second instance and after
             imgpoly = np.append(imgpoly, i)
             x += 1
-        elif ("IMAGE;polygon" in lines[i]) and x >= 0:
+        elif ("IMAGE;polygon" in lines[i]) and x == 0:
             x += 1
 
     ''' Loops through the SCW and find all chmax values and append them'''
@@ -63,28 +60,32 @@ def lightcurve(scw, chwidth, filename, directory):
                     weighted = np.append(weighted, yPlot[k-1]+yPlot[k]+yPlot[k+1]-(3*yPlot[0]))
                     break
 
-        n = np.argmax(weighted)  # Position of highest value of weighted (The best imgpoly fit)
-        poly = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*?\d*(?:[eE][-+]?\d+)?", lines[int(imgpoly[n])])
+        if len(weighted) == 0:
+            pass
+        else:
+            n = np.argmax(weighted)  # Position of highest value of weighted (The best imgpoly fit)
+            nvalue = np.append(nvalue, n)
+            poly = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*?\d*(?:[eE][-+]?\d+)?", lines[int(imgpoly[n])])
 
-        xPlot = np.asarray(poly[::2]).astype(int)  # All even positions as integers
-        yPlot = np.asarray(poly[1::2]).astype(int)  # All uneven positions as integers
+            xPlot = np.asarray(poly[::2]).astype(int)  # All even positions as integers
+            yPlot = np.asarray(poly[1::2]).astype(int)  # All uneven positions as integers
 
-        ''' Creating a plot '''
-        plt.plot(xPlot, yPlot, linestyle="-", color="b")
-        plt.axhline(y=yPlot[0], linestyle="-", color="r")
-        plt.grid(True)
-        plt.title("scw " + str(scw) + ": " + "chmax " + str(chmax[i]) + " , best imgpoly " + str(n),
-                  fontsize=16)
-        plt.xlabel("x-axis", fontsize=18)
-        plt.ylabel("y-axis", fontsize=18)
-        plt.show()
+            xPlot = [x * chwidth for x in xPlot]  # Changing channels to seconds
+            yPlot = [(y - yPlot[0])/20 for y in yPlot]  # Changing y-values to standard deviation
 
-    # Jeg skal finde toppunktets x-koordinat. Herefter skal jeg kigge på det x-koordinat i samtlige
-    # imgpoly. Jeg summer for punktet, plus -1 og +1 i forhold til koordinaten.
-    # Herefter sammenligner jeg og ser hvilket punkt har den højeste vægtede sum.
+            if len(xTotal) == 0:
+                xTotal = np.append(xTotal, xPlot)
+                yTotal = np.append(yTotal, yPlot)
+            else:
+                xTotal = np.vstack((xTotal, xPlot))
+                yTotal = np.vstack((yTotal, yPlot))
 
+            #print(np.amax(yPlot), np.amin(yPlot))
+            #print("Range: ", np.amax(yPlot)-abs(np.amin(yPlot)))
 
-lightcurve(scw, chwidth, filename, directory)
+            ranges = np.append(ranges, np.amax(yPlot)-abs(np.amin(yPlot)))
+
+    return xTotal, yTotal, ranges, chmax, nvalue
 
 
 
