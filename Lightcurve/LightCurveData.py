@@ -9,8 +9,8 @@ def lightcurve(scw, chwidth, xCoor, yCoor, filename):
     interval = np.array([])  # Array of the interval of a SCW
     imgpoly = np.array([])  # Array of IMAGE;polygon line numbers
     chmax = np.array([])  # Array of chmax values
-    xTotal = []
-    yTotal = []
+    xTotal = np.array([])
+    yTotal = np.array([])
     x = 0  # integer counting the number of IMAGE;polygon instances
 
     # Open file and read the lines

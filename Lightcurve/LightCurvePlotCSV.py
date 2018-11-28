@@ -1,24 +1,31 @@
 from LightCurveData import *
 
 directory = "CoorExtract/"
-filename = "BurstFound EXO 1745-248 (Tz 5)f" + ".csv"
+#filename = "BurstFound EXO 1745-248 (Tz 5)f" + ".csv"
+filename = "BurstFound Aql X-1.csv"
 
 df = pd.read_csv(os.path.join("BurstCSV/" + directory, filename))
 
 for i in range(len(df.iloc[:, 0])):
-    filename = "E03Combined.txt"
+    filename = 'E03/' + df.iloc[i, 0]
 
-    scw = int(df.iloc[i, 0])
-    chwidth = df.iloc[i, 10]
-    xCoor = df.iloc[i, 1]
-    yCoor = df.iloc[i, 2]
+    if "J1" in filename:
+        sat = "J1"
+    else:
+        sat = "J2"
+
+    scw = int(df.iloc[i, 1])
+    chwidth = df.iloc[i, 6]
+    cm2 = df.iloc[i, 5]
+    xCoor = df.iloc[i, 2]
+    yCoor = df.iloc[i, 3]
     print(scw)
 
     xPlot = lightcurve(scw, chwidth, xCoor, yCoor, filename)[0]
     yPlot = lightcurve(scw, chwidth, xCoor, yCoor, filename)[1]
     chmax = lightcurve(scw, chwidth, xCoor, yCoor, filename)[2]
 
-    if scw == int(df.iloc[i-1, 0]):
+    if scw == int(df.iloc[i-1, 1]):
         print("Already plotted")
     else:
         if len(xPlot) == 0:
@@ -28,7 +35,7 @@ for i in range(len(df.iloc[:, 0])):
             ''' Creating a plot '''
             plt.plot(xPlot, yPlot, linestyle="-", color="b")
             plt.grid(True)
-            plt.title("scw " + str(scw) + ": " + "chmax " + str(chmax[0]),
+            plt.title(sat + " SCW " + str(scw) + ": " + "chmax " + str(chmax[0]) + " cm2 " + str(cm2),
                       fontsize=16)
             plt.xlabel("Seconds [s]", fontsize=18)
             plt.ylabel("Standard Deviation", fontsize=18)
@@ -38,7 +45,7 @@ for i in range(len(df.iloc[:, 0])):
                 ''' Creating a plot '''
                 plt.plot(xPlot[j], yPlot[j], linestyle="-", color="b")
                 plt.grid(True)
-                plt.title("scw " + str(scw) + ": " + "chmax " + str(chmax[j]),
+                plt.title(sat + " scw " + str(scw) + ": " + "chmax " + str(chmax[j]) + " cm2" + str(cm2),
                           fontsize=16)
                 plt.xlabel("Seconds [s]", fontsize=18)
                 plt.ylabel("Standard Deviation", fontsize=18)
