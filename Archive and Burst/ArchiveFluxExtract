@@ -1,0 +1,80 @@
+import numpy as np
+import pandas as pd
+import re
+import os
+
+N = 600000  # amount of lines
+
+search = ["fk5;point", "EnD", "text=", " flux:"]
+archiveColumns = ["File", "SCW", "coordinate1", "coordinate2", "text", "flux"]  # units in [], s = seconds, D = days
+
+directory = "0reg/"  # Chosen Directory (E03 or E04)
+
+
+def archiveExtract(directory):
+
+    archivedf = pd.DataFrame(np.zeros((N, len(archiveColumns))), columns=archiveColumns)
+    m = 0
+    n = 0
+    x = 0
+
+    for filename in os.listdir("ArchiveFiles/" + directory):
+        if filename.endswith(".txt"):
+            with open(os.path.join("ArchiveFiles/" + directory, filename), 'r') as fin: # Open file and read the lines
+                lines = fin.readlines()
+
+            ''' Goes through the lines of the text file data '''
+            
+            for i in range(len(lines)):
+                if x < N:
+                    if search[0] in lines[i]: # Leder efter fk5;point i linjerne
+                        coordinates = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[i])
+                        info = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[i + 1])
+
+                        # Display which file the source is found in
+                        archivedf.iloc[n, 0] = filename
+
+                        # Tildeler koordinaterne til deres plads i DF
+                        archivedf.iloc[n, 2] = float(coordinates[1])
+                        archivedf.iloc[n, 3] = float(coordinates[2])
+
+                        # Tildeler yderligere info til deres plads i DF
+                        archivedf.iloc[n, 5] = float(info[7])  # flux
+     
+                        n += 1
+                        
+
+                        # Finds the SCW of the source
+                        for j in range(i, len(lines)):
+                            if search[1] in lines[j]:
+                                scw = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", lines[j])
+                                archivedf.iloc[m, 1] = int(scw[0])
+                                break
+
+                        # Finds text
+                        if "text={}" in lines[i]:
+                            archivedf.iloc[m,4] = "NO TEXT"
+                            pass
+                        elif "text=" in lines[i]:
+                            s = lines[i]
+                            archivedf.iloc[m, 4] = s[s.find("{")+1:s.find("}")]
+                            pass
+                        else:
+                            archivedf.iloc[m,4] = "NO TEXT"
+                            pass
+                        
+                        m += 1
+                        x += 1
+                    
+                    #print("Working hard")
+                    
+            
+    ''' Sorts data (Removes zero rows) '''
+    archivedf = archivedf[(archivedf.T != 0).any()]
+
+    archivedf.to_csv("ArchiveCSV/" + directory + "FluxExtract" + ".csv", sep=',', encoding="utf-8", index=False)
+
+    print("Done!")
+
+
+archiveExtract(directory)
