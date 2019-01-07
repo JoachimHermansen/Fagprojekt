@@ -1,12 +1,12 @@
 from LightCurveData import *
 
-filename = "E03/gbJ1_B_4_E03.txt"
+filename = "E03/gbJ1_S1_4_E03.txt"
 
-xCoor = 287.8176
-yCoor = 0.589
+xCoor = 266.5229
+yCoor = -29.5153
 
 chwidth = 4.0
-scw = "30900660010"
+scw = "179200870010"
 
 xPlot = lightcurve(scw, chwidth, xCoor, yCoor, filename)[0]
 yPlot = lightcurve(scw, chwidth, xCoor, yCoor, filename)[1]
